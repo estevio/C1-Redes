@@ -16,7 +16,7 @@ def parse_HTTP_message(message):
         head = message
         body = b""
     decoded_head = head.decode()
-    print("mensaje decodificado: " + decoded_head)
+    print("\n mensaje decodificado: \n" + decoded_head)
     
     headers_list = decoded_head.split("\r\n")
     start_line = headers_list.pop(0)
@@ -44,6 +44,11 @@ def create_HTTP_message(data):
     message = (start_line + "\r\n" + head + "\r\n").encode() + body
     return message
 
+# recibe un socket y un numero
+# retorna una 3-tupla
+# - start line: str
+# - headers: dict
+# - body: bin
 def receive_full_message(connection_socket, buff_size):
  
     # recibimos la primera parte del mensaje
@@ -58,7 +63,6 @@ def receive_full_message(connection_socket, buff_size):
     if not start_line.startswith("HTTP"):
         return recv_message
 
-    print(headers)
     # entramos a un while para recibir el resto y seguimos esperando información
     # mientras el buffer no contenga secuencia de fin de mensaje
     body_size = int(headers["Content-Length"][1:])
@@ -73,7 +77,8 @@ def receive_full_message(connection_socket, buff_size):
     # finalmente retornamos el mensaje
     return create_HTTP_message((start_line,headers,body))
 
-# recibe los
+# no recibe nada
+# devuelve el mensaje texto/http para el error 403 Forbidden
 def error403():
     start_line = "HTTP/1.1 403 Forbidden"
     headers = {"Content-type":"text/html"}
@@ -82,6 +87,8 @@ def error403():
     data = (start_line,headers,body)
     return create_HTTP_message(data)
 
+#   no recibe nada
+#   devuelve el mensaje imagen/png para el error 403 Forbidden
 def imagenResponse():
     start_line = "HTTP/1.1 200 Ok"
     headers = {"Content-type":"image/png"}
@@ -90,6 +97,8 @@ def imagenResponse():
     data = (start_line,headers,body)
     return create_HTTP_message(data)
 
+# recibe un mensaje y un texto de nombre
+# devuelve el mensaje con un headers X-ElQuePregunta con el nombre que se ingreso
 def addUserHeader(message, user):
     data = parse_HTTP_message(message)
     start_line = data[0]
@@ -99,6 +108,8 @@ def addUserHeader(message, user):
     data = (start_line,headers,body)
     return create_HTTP_message(data)
 
+# recibe un mensaje y un diccionario con palabras para cambiar
+# devuelve el mensaje con el body editado, reemplaza las malas palabras
 def sanitize(message, badWords):
     data = parse_HTTP_message(message)
     start_line = data[0]
@@ -142,10 +153,10 @@ if __name__ == "__main__":
     close = True
     while close:
 
-        print("esperando cliente")
+        print("esperando cliente\n")
 
         client_socket, client_address = con_socket.accept()
-        print("cliente aceptado")
+        print("cliente aceptado\n")
         # Se conecta el usuario del proxy
         
         recv_message = receive_full_message(client_socket, buff_size)
@@ -157,6 +168,7 @@ if __name__ == "__main__":
         print(start_line)
         print("\n")
         print(headers.keys, body)
+        print("\n")
 
         if start_line.startswith("GET") or start_line.startswith("CONNECT"):
             pag = start_line.split(" ")[1] # http://example.com/
