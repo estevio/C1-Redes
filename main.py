@@ -16,7 +16,7 @@ def parse_HTTP_message(message):
         head = message
         body = b""
     decoded_head = head.decode()
-    print("\n mensaje decodificado: \n" + decoded_head)
+    #print("\n mensaje decodificado: \n" + decoded_head)
     
     headers_list = decoded_head.split("\r\n")
     start_line = headers_list.pop(0)
@@ -66,7 +66,7 @@ def receive_full_message(connection_socket, buff_size):
     # entramos a un while para recibir el resto y seguimos esperando información
     # mientras el buffer no contenga secuencia de fin de mensaje
     body_size = int(headers["Content-Length"][1:])
-    while len(body) != body_size:
+    while len(body) < body_size:
         
         # recibimos un nuevo trozo del mensaje
         body += connection_socket.recv(buff_size)
@@ -160,29 +160,32 @@ if __name__ == "__main__":
         # Se conecta el usuario del proxy
         
         recv_message = receive_full_message(client_socket, buff_size)
-        print("\nMensaje Codificado:\n")
-        print(recv_message)
-        print("\n")
+        #print("\nMensaje Codificado:\n")
+        #print(recv_message)
 
         start_line, headers, body = parse_HTTP_message(recv_message)
-        print(start_line)
-        print("\n")
-        print(headers.keys, body)
-        print("\n")
+        #print(start_line)
+        #print("\n")
+        #print(headers.keys, body)
+        #print("\n")
 
         if start_line.startswith("GET") or start_line.startswith("CONNECT"):
             pag = start_line.split(" ")[1] # http://example.com/
             pag = pag.replace("http://", "")
             host = pag.split("/")[0]
             pag = pag.rstrip("/")
+            print("\n")
+            print(f"pag: {pag}")
+            print("\n")
             print(f"host: {host}")
-
-            if pag in json_data["blocked"]:
-                recv_message = error403()
-                client_socket.send(recv_message)
-                recv_message = receive_full_message(client_socket, buff_size)
-                recv_message = imagenResponse()
-                client_socket.send(recv_message)
+            print("\n")
+            if pag in json_data["blocked"] or "Gatito.png" in pag:
+                if "[Gatito.png]" in pag or "Gatito.png" in pag:
+                    print("\n miau \n\n\n miau \n")
+                    client_socket.send(imagenResponse())
+                else:
+                    recv_message = error403()
+                    client_socket.send(recv_message)
             else:
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 server_socket.connect((host, 80))
