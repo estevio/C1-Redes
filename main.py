@@ -16,7 +16,7 @@ def parse_HTTP_message(message):
         head = message
         body = b""
     decoded_head = head.decode()
-    #print("\n mensaje decodificado: \n" + decoded_head)
+    print("\n mensaje decodificado: \n" + decoded_head)
     
     headers_list = decoded_head.split("\r\n")
     start_line = headers_list.pop(0)
@@ -160,14 +160,14 @@ if __name__ == "__main__":
         # Se conecta el usuario del proxy
         
         recv_message = receive_full_message(client_socket, buff_size)
-        #print("\nMensaje Codificado:\n")
-        #print(recv_message)
+        print("\nMensaje Codificado:\n")
+        print(recv_message)
 
         start_line, headers, body = parse_HTTP_message(recv_message)
         #print(start_line)
-        #print("\n")
-        #print(headers.keys, body)
-        #print("\n")
+        print("\n")
+        print(headers.keys, body)
+        print("\n")
 
         if start_line.startswith("GET") or start_line.startswith("CONNECT"):
             pag = start_line.split(" ")[1] # http://example.com/
